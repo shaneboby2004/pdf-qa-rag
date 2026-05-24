@@ -1,0 +1,114 @@
+<div class="app-shell">
+
+  <!-- LEFT PANEL -->
+  <div class="sidebar">
+    <div class="logo">📄 PDF Q&A</div>
+    <p class="tagline">Upload a PDF and ask questions about it using AI.</p>
+
+    <div class="upload-box" [class.uploaded]="collectionName">
+
+      <input
+        type="file"
+        accept=".pdf"
+        id="fileInput"
+        (change)="onFileSelected($event)"
+        style="display:none"
+      />
+
+      <label for="fileInput" class="file-label">
+        <span *ngIf="!selectedFile">Click to select a PDF</span>
+        <span *ngIf="selectedFile">📎 {{ selectedFile.name }}</span>
+      </label>
+
+      <button
+        class="upload-btn"
+        (click)="uploadFile()"
+        [disabled]="!selectedFile || uploading || indexing"
+      >
+        <span *ngIf="!uploading && !indexing">Upload & Index</span>
+        <span *ngIf="uploading">⏳ Uploading...</span>
+        <span *ngIf="indexing">🔄 Indexing...</span>
+      </button>
+
+      <div class="indexing-status" *ngIf="indexing">
+        <div class="indexing-bar"></div>
+        <p>Processing your PDF, please wait...</p>
+      </div>
+
+      <div class="upload-error" *ngIf="uploadError">{{ uploadError }}</div>
+
+      <div class="upload-success" *ngIf="collectionName">
+        ✅ Ready: <strong>{{ uploadedFilename }}</strong>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <p>Powered by</p>
+      <p>Groq · ChromaDB · FastAPI · Angular</p>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL — CHAT -->
+  <div class="chat-panel">
+
+    <div class="chat-window" id="chat-window">
+
+      <div class="empty-state" *ngIf="messages.length === 0">
+        <div class="empty-icon">💬</div>
+        <p>Upload a PDF on the left to get started.</p>
+      </div>
+
+      <div
+        *ngFor="let msg of messages"
+        class="message-row"
+        [class.user-row]="msg.role === 'user'"
+        [class.bot-row]="msg.role === 'bot'"
+      >
+        <div class="avatar">{{ msg.role === 'user' ? '🧑' : '🤖' }}</div>
+        <div
+          class="bubble"
+          [class.user-bubble]="msg.role === 'user'"
+          [class.bot-bubble]="msg.role === 'bot'"
+        >
+          <p class="message-text">{{ msg.text }}</p>
+
+          <div class="sources" *ngIf="msg.sources && msg.sources.length > 0">
+            <p class="sources-label">📚 Sources</p>
+            <div class="source-chip" *ngFor="let src of msg.sources">
+              <span class="page-badge">Page {{ src.page }}</span>
+              <span class="preview-text">{{ src.preview }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="message-row bot-row" *ngIf="loading">
+        <div class="avatar">🤖</div>
+        <div class="bubble bot-bubble">
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="input-bar">
+      <textarea
+        [(ngModel)]="question"
+        (keydown)="onEnter($event)"
+        placeholder="Ask a question about your PDF..."
+        [disabled]="!collectionName || loading || indexing"
+        rows="1"
+      ></textarea>
+      <button
+        class="send-btn"
+        (click)="sendQuestion()"
+        [disabled]="!question.trim() || !collectionName || loading || indexing"
+      >
+        Send ➤
+      </button>
+    </div>
+
+  </div>
+</div>
