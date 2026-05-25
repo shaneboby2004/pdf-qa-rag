@@ -1,3 +1,4 @@
+![CI Pipeline](https://github.com/shaneboby2004/pdf-qa-rag/actions/workflows/ci.yml/badge.svg)
 # PDF Q&A RAG System
 
 A full-stack AI application that lets you upload any PDF and ask natural language questions about it, with streaming answers and source citations.
